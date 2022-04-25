@@ -163,6 +163,7 @@ class MerkleTree {
     leaves.forEach((value: Field) => {
       this.tree.leaves.push(hash ? Poseidon.hash([value]) : value);
     });
+
     this.makeTree();
   }
 
