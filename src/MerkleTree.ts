@@ -12,6 +12,9 @@ import {
   Poseidon,
 } from 'snarkyjs';
 
+export { MerkleTree };
+export type { MerklePathElement, Binarytree };
+
 /**
  * A {@link BinaryTree} represents the underlying data structure used in Merkle Trees.
  * It stores the trees leaves and the nodes, which are stored in a matrix.
@@ -91,6 +94,17 @@ class MerkleTree {
     }
 
     return proofHash.equals(merkleRoot).toBoolean();
+  }
+
+  /**
+   * Returns the merkle proof
+   * @returns {Field | undefined} Merkle root, if not undefined
+   */
+  getMerkleRoot(): Field | undefined {
+    if (this.tree.levels.length === 0) {
+      return undefined;
+    }
+    return this.tree.levels[0][0];
   }
 
   /**
