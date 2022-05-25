@@ -36,29 +36,40 @@ interface MerklePathElement {
 }
 
 /**
+ * A Merkle Path (or Merkle Proof) which consists of single MerklePathElements
+ */
+interface MerklePath {
+  path: MerklePathElement;
+}
+
+/**
+ * Option interface for a Merkle Tree
+ */
+interface Options {
+  hashLeaves: boolean;
+}
+
+/**
  * A {@link MerkleTree} is a {@link BinaryTree} which aggregates hashes of the underlying data. See [Merkle Tree](https://en.wikipedia.org/wiki/Merkle_tree)
  *
  */
-class MerkleTree {
+class MerkleTree<T extends CircuitValue> {
   private tree: BinaryTree;
+  private options: Options;
 
-  constructor() {
+  /**
+   * Builds a merkle tree based on a list of given leaves
+   * @param {Field[]} leaves leaves filled with data
+   * @param {Options} options that can define the structure of the merkle tree
+   * @return returns a {@link MerkleTree}
+   */
+  constructor(leaves: Field[], options: Options) {
     this.tree = {
       leaves: [],
       levels: [],
     };
-  }
-
-  /**
-   * A static function that returns a Merkle Tree based on an array of leaves
-   * @param {Field[]} leaves leaves filled with data
-   * @param {boolean} hash if true elements in the array will be hased using Poseidon, if false they will be inserted directly
-   * @return returns a {@link MerkleTree}
-   */
-  static fromLeaves(leaves: Field[], hash = true): MerkleTree {
-    let tree = new MerkleTree();
-    tree.appendLeaves(leaves, hash);
-    return tree;
+    this.options = options;
+    this.appendLeaves(leaves, this.options.hashLeaves);
   }
 
   /**
@@ -73,12 +84,8 @@ class MerkleTree {
     targetHash: Field,
     merkleRoot: Field
   ): boolean {
-    // NOTE: can probably remove this?
-    if (merklePath.length === 0) {
-      return targetHash.equals(merkleRoot).toBoolean(); // no siblings, single item tree, so the hash should also be the root
-    }
+    let proofHash: Field = targetHash;
 
-    var proofHash: Field = targetHash;
     // going from top to bot
     for (let x = 0; x < merklePath.length; x++) {
       proofHash = Circuit.if(
@@ -187,7 +194,6 @@ class MerkleTree {
   makeTree() {
     let leafCount: number = this.tree.leaves.length;
     if (leafCount > 0) {
-      // skip this whole process if there are no leaves added to the tree
       this.tree.levels = [];
       this.tree.levels.unshift(this.tree.leaves);
       while (this.tree.levels[0].length > 1) {
