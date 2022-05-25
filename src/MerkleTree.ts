@@ -13,13 +13,13 @@ import {
 } from 'snarkyjs';
 
 export { MerkleTree };
-export type { MerklePathElement, Binarytree };
+export type { MerklePathElement, BinaryTree };
 
 /**
  * A {@link BinaryTree} represents the underlying data structure used in Merkle Trees.
  * It stores the trees leaves and the nodes, which are stored in a matrix.
  */
-interface Binarytree {
+interface BinaryTree {
   leaves: Field[];
   levels: Field[][];
 }
@@ -40,7 +40,7 @@ interface MerklePathElement {
  *
  */
 class MerkleTree {
-  private tree: Binarytree;
+  private tree: BinaryTree;
 
   constructor() {
     this.tree = {
