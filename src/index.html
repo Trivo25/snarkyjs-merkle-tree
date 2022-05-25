@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <canvas
+      id="myCanvas"
+      width="1000"
+      height="500"
+      style="border: 1px solid #c3c3c3"
+    >
+      Your browser does not support the canvas element.
+    </canvas>
+
+    <script>
+      let levels = [
+        ['h123456'],
+        ['h1234', 'h345'],
+        ['h12', 'h34', 'h5'],
+        ['h1', 'h2', 'h3', 'h4', 'h5'],
+      ];
+
+      let canvas = document.getElementById('myCanvas');
+      let ctx = canvas.getContext('2d');
+
+      let margin = 25;
+      let width = canvas.clientWidth - 50;
+      let height = canvas.clientHeight;
+      let levelCount = levels.length;
+
+      let connections = [];
+      levels.reverse().forEach((leavesLabels, index1) => {
+        ctx.fillStyle = '#FF0000';
+        ctx.font = '12px Arial';
+        let cons = [];
+        leavesLabels.forEach((label, index2) => {
+          let spacer = width / leavesLabels.length;
+          let x = spacer / 2 + spacer * index2;
+          let y = 450 - (height / levelCount) * index1;
+          ctx.fillText(label, x, y);
+
+          cons.push([x, y]);
+        });
+        connections.push(cons);
+      });
+
+      let layers = connections.length;
+    </script>
+  </body>
+</html>
