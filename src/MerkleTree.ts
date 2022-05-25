@@ -38,9 +38,7 @@ interface MerklePathElement {
 /**
  * A Merkle Path (or Merkle Proof) which consists of single MerklePathElements
  */
-interface MerklePath {
-  path: MerklePathElement;
-}
+type MerklePath = MerklePathElement[];
 
 /**
  * Option interface for a Merkle Tree
@@ -74,17 +72,17 @@ class MerkleTree<T extends CircuitValue> {
 
   /**
    * Static function to validate a merkle path
-   * @param {MerklePathElement[]} merklePath Merkle path leading to the root of the tree
+   * @param {MerklePath} merklePath Merkle path leading to the root of the tree
    * @param {Field} leafHash Hash of element that needs verification
    * @param {Field} merkleRoot Root of the merkle tree
    * @returns {boolean} true when the merkle path matches the merkle root
    */
   static validateProof(
-    merklePath: MerklePathElement[],
-    targetHash: Field,
+    merklePath: MerklePath,
+    leafHash: Field,
     merkleRoot: Field
   ): boolean {
-    let proofHash: Field = targetHash;
+    let proofHash: Field = leafHash;
 
     // going from top to bot
     for (let x = 0; x < merklePath.length; x++) {
@@ -117,15 +115,15 @@ class MerkleTree<T extends CircuitValue> {
   /**
    * Returns a merkle path of an element at a given index
    * @param {number} index of element
-   * @returns {MerklePathElement[] | undefined} merkle path or undefined
+   * @returns {MerklePath | undefined} merkle path or undefined
    */
-  getProof(index: number): MerklePathElement[] {
+  getProof(index: number): MerklePath | undefined {
     let currentRowIndex: number = this.tree.levels.length - 1;
     if (index < 0 || index > this.tree.levels[currentRowIndex].length - 1) {
-      return []; // the index it out of the bounds of the leaf array
+      return undefined; // the index it out of the bounds of the leaf array
     }
 
-    let path: MerklePathElement[] = [];
+    let path: MerklePath = [];
 
     for (let x = currentRowIndex; x > 0; x--) {
       let currentLevelNodeCount: number = this.tree.levels[x].length;
@@ -142,15 +140,10 @@ class MerkleTree<T extends CircuitValue> {
       let isRightNode: number = index % 2;
       let siblingIndex: number = isRightNode ? index - 1 : index + 1;
 
-      let siblingPosition: Field = isRightNode ? Field(0) : Field(1);
-      let siblingValue: Field = this.tree.levels[x][siblingIndex];
-
-      let sibling: MerklePathElement = {
-        direction: siblingPosition,
-        hash: siblingValue,
-      };
-
-      path.push(sibling);
+      path.push({
+        direction: isRightNode ? Field(0) : Field(1),
+        hash: this.tree.levels[x][siblingIndex],
+      });
 
       index = Math.floor(index / 2); // set index to the parent index
     }
