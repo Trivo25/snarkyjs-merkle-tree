@@ -136,12 +136,14 @@ class MerkleTree {
         continue;
       }
 
-      // determine the sibling for the current index and get its value
-      let isEvenLeaf: boolean = index % 2 === 0;
-      let siblingIndex: number = isEvenLeaf ? index + 1 : index - 1;
+      // determine the sibling for the current index and get its hash value
+      // if the node is even, the sibling has to be on the right of it
+      // if the node is odd, the sibling has to be on the left of it
+      let isEvenNode: boolean = index % 2 === 0;
+      let siblingIndex: number = isEvenNode ? index + 1 : index - 1;
 
       path.push({
-        direction: isEvenLeaf ? Field(0) : Field(1),
+        direction: isEvenNode ? Field(0) : Field(1),
         hash: this.tree.levels[x][siblingIndex],
       });
 
@@ -223,10 +225,11 @@ class MerkleTree {
   }
 
   printTree(): void {
-    this.tree.levels.forEach((level) => {
-      console.log('---');
-      level.forEach((l) => {
-        console.log(l.toString());
+    console.log('printing tree from top (root) to bottom (leaves)');
+    this.tree.levels.forEach((level, index) => {
+      console.log(`- - - level ${index} ${index === 0 ? 'root' : ''} - - - `);
+      level.forEach((entry, i) => {
+        console.log(`${i}: ${entry.toString()}`);
       });
     });
   }
