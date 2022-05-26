@@ -33,7 +33,6 @@ type MerklePath = MerklePathElement[];
  */
 interface Options {
   hashLeaves: boolean;
-  duplicateOdd: boolean;
 }
 
 /**
@@ -115,17 +114,11 @@ class MerkleTree {
 
     for (let x = currentRowIndex; x > 0; x--) {
       let currentLevelNodeCount: number = this.tree.levels[x].length;
-      // odd node, skip or duplicate it
+      // skip if this is an odd end node
       if (
         index === currentLevelNodeCount - 1 &&
         currentLevelNodeCount % 2 === 1
       ) {
-        if (this.options.duplicateOdd === true) {
-          path.push({
-            direction: Field(0),
-            hash: this.tree.levels[x][index],
-          });
-        }
         index = Math.floor(index / 2);
         continue;
       }
@@ -201,15 +194,11 @@ class MerkleTree {
     let topLevelCount: number = topLevel.length;
     for (let x = 0; x < topLevelCount; x += 2) {
       if (x + 1 <= topLevelCount - 1) {
-        // concatenate and hash the pair
+        // concatenate and hash the pair, add to the next level array, doubleHash if requested
         nodes.push(Poseidon.hash([topLevel[x], topLevel[x + 1]]));
       } else {
-        // duplicate odd nodes to form a hash if true
-        if (this.options.duplicateOdd === true) {
-          nodes.push(Poseidon.hash([topLevel[x], topLevel[x]]));
-        } else {
-          nodes.push(topLevel[x]);
-        }
+        // this is an odd ending node, promote up to the next level by itself
+        nodes.push(topLevel[x]);
       }
     }
     return nodes;
