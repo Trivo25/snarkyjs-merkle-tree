@@ -4,8 +4,9 @@ import { MerkleTree, Options } from './MerkleTree.js';
 const example = async () => {
   await isReady;
 
-  let options: Options = {
+  /*  let options: Options = {
     hashLeaves: true,
+    duplicateOdd: false,
   };
 
   let rawData: Field[] = [Field(0), Field(1), Field(2), Field(3)];
@@ -20,6 +21,26 @@ const example = async () => {
   let isValid = MerkleTree.validateProof(
     tree.getProof(0),
     Poseidon.hash([rawData[0]]),
+    tree.getMerkleRoot()!
+  );
+  console.log('proof valid?', isValid); */
+  let options: Options = {
+    hashLeaves: true,
+    duplicateOdd: true,
+  };
+
+  let rawData: Field[] = [Field(0), Field(1), Field(2)];
+
+  let tree = new MerkleTree(rawData, options);
+
+  console.log('root: ' + tree.getMerkleRoot()?.toString());
+
+  tree.printProof(2);
+  tree.printTree();
+
+  let isValid = MerkleTree.validateProof(
+    tree.getProof(2),
+    Poseidon.hash([rawData[2]]),
     tree.getMerkleRoot()!
   );
   console.log('proof valid?', isValid);
