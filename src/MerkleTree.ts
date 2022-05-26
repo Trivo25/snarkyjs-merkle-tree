@@ -137,11 +137,11 @@ class MerkleTree {
       }
 
       // determine the sibling for the current index and get its value
-      let isRightNode: number = index % 2;
-      let siblingIndex: number = isRightNode ? index - 1 : index + 1;
+      let isEvenLeaf: boolean = index % 2 === 0;
+      let siblingIndex: number = isEvenLeaf ? index + 1 : index - 1;
 
       path.push({
-        direction: isRightNode ? Field(0) : Field(1),
+        direction: isEvenLeaf ? Field(0) : Field(1),
         hash: this.tree.levels[x][siblingIndex],
       });
 

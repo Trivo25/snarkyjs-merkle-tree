@@ -12,9 +12,9 @@ const example = async () => {
 
   let tree = new MerkleTree(rawData, options);
 
-  /*   console.log(tree.getMerkleRoot()?.toString());
+  console.log(tree.getMerkleRoot()?.toString());
 
-  tree.printProof(0); */
+  tree.printProof(0);
   tree.printTree();
 };
 example();
