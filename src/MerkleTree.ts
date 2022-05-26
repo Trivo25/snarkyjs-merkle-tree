@@ -13,7 +13,7 @@ interface BinaryTree {
 }
 
 /**
- * A MerklePathElement has the following structure:
+ * A {@link MerklePathElement} has the following structure:
  * direction: Field - Direction of the node, Field(0) for left, Field(1) for right
  * hash: Field - Hash of the node
  * With a list of MerklePathElements you can recreate the merkle root for a specific leaf
@@ -24,7 +24,7 @@ interface MerklePathElement {
 }
 
 /**
- * A Merkle Path (or Merkle Proof) which consists of single MerklePathElements
+ * A {@link MerklePath} (or Merkle Proof) which consists of multiple {@link MerklePathElement}
  */
 type MerklePath = MerklePathElement[];
 
