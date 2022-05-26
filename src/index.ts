@@ -1,4 +1,4 @@
-import { MerkleTree, MerklePathElement, Binarytree } from './MerkleTree';
+import { MerkleTree, MerklePath } from './MerkleTree';
 
 export { MerkleTree };
-export type { MerklePathElement, Binarytree };
+export type { MerklePath };

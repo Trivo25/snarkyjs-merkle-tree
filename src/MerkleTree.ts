@@ -13,7 +13,7 @@ import {
 } from 'snarkyjs';
 
 export { MerkleTree };
-export type { MerklePathElement, BinaryTree };
+export type { MerklePath, Options };
 
 /**
  * A {@link BinaryTree} represents the underlying data structure used in Merkle Trees.
@@ -51,7 +51,7 @@ interface Options {
  * A {@link MerkleTree} is a {@link BinaryTree} which aggregates hashes of the underlying data. See [Merkle Tree](https://en.wikipedia.org/wiki/Merkle_tree)
  *
  */
-class MerkleTree<T extends CircuitValue> {
+class MerkleTree {
   private tree: BinaryTree;
   private options: Options;
 
@@ -117,10 +117,10 @@ class MerkleTree<T extends CircuitValue> {
    * @param {number} index of element
    * @returns {MerklePath | undefined} merkle path or undefined
    */
-  getProof(index: number): MerklePath | undefined {
+  getProof(index: number): MerklePath {
     let currentRowIndex: number = this.tree.levels.length - 1;
     if (index < 0 || index > this.tree.levels[currentRowIndex].length - 1) {
-      return undefined; // the index it out of the bounds of the leaf array
+      return []; // the index it out of the bounds of the leaf array
     }
 
     let path: MerklePath = [];
@@ -220,5 +220,28 @@ class MerkleTree<T extends CircuitValue> {
       leaves: [],
       levels: [],
     };
+  }
+
+  printTree(): void {
+    this.tree.levels.forEach((level) => {
+      console.log('---');
+      level.forEach((l) => {
+        console.log(l.toString());
+      });
+    });
+  }
+
+  printProof(index: number): void {
+    console.log(`root: ${this.getMerkleRoot()}`);
+    this.getProof(index).forEach((proof, i) => {
+      console.log(`
+        ${i}: {
+          direction: ${
+            proof.direction.equals(Field(0)).toBoolean() ? 'right' : 'left'
+          },
+          hash: ${proof.hash}
+        }
+      `);
+    });
   }
 }

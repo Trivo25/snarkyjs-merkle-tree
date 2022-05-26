@@ -3,18 +3,12 @@ import { Field, isReady, Poseidon, shutdown } from 'snarkyjs';
 import { MerkleTree } from './MerkleTree';
 
 describe('MerkleTree unit test', () => {
-  let merkleTree: MerkleTree;
-
   beforeAll(async () => {
     await isReady;
   });
 
   afterAll(async () => {
     shutdown();
-  });
-
-  beforeEach(() => {
-    merkleTree = new MerkleTree();
   });
 
   it('should construct and proof a merkle tree', () => {
@@ -38,7 +32,9 @@ describe('MerkleTree unit test', () => {
     let h_CABCD = Poseidon.hash([h_AB, h_CD]);
 
     let expectedMerkleRoot = Poseidon.hash([h_CABCD, h_E]);
-    merkleTree.appendLeaves(nodeData);
+    let merkleTree = new MerkleTree(nodeData, {
+      hashLeaves: true,
+    });
 
     let actualMerkleRoot = merkleTree.getMerkleRoot();
 
@@ -52,6 +48,7 @@ describe('MerkleTree unit test', () => {
           actualMerkleRoot === undefined ? Field(0) : actualMerkleRoot
         )
       );
+      merkleTree.printProof(index);
     });
   });
 });
