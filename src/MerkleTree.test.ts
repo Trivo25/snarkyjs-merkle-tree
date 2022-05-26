@@ -1,8 +1,12 @@
-import { Field, isReady, Poseidon, shutdown } from 'snarkyjs';
+import { isReady, shutdown, Field, Poseidon } from 'snarkyjs';
 
-import { MerkleTree } from './MerkleTree';
+import { MerklePath, MerkleTree, Options } from './MerkleTree';
 
-describe('MerkleTree unit test', () => {
+describe('MerkleTree', () => {
+  let options: Options = {
+    hashLeaves: true,
+  };
+
   beforeAll(async () => {
     await isReady;
   });
@@ -11,44 +15,76 @@ describe('MerkleTree unit test', () => {
     shutdown();
   });
 
-  it('should construct and proof a merkle tree', () => {
-    // TODO: cleanup tests
-    // TODO: test more edge cases
-    let nodeData = [];
-
-    for (let index = 0; index <= 4; index++) {
-      nodeData.push(Field(Math.floor(Math.random() * 1000000000000)));
-    }
-
-    let h_A = Poseidon.hash([nodeData[0]]);
-    let h_B = Poseidon.hash([nodeData[1]]);
-    let h_C = Poseidon.hash([nodeData[2]]);
-    let h_D = Poseidon.hash([nodeData[3]]);
-    let h_E = Poseidon.hash([nodeData[4]]);
-
-    let h_AB = Poseidon.hash([h_A, h_B]);
-    let h_CD = Poseidon.hash([h_C, h_D]);
-
-    let h_CABCD = Poseidon.hash([h_AB, h_CD]);
-
-    let expectedMerkleRoot = Poseidon.hash([h_CABCD, h_E]);
-    let merkleTree = new MerkleTree(nodeData, {
-      hashLeaves: true,
+  describe('should construct merkle trees correctly', () => {
+    describe('even', () => {
+      it('n = 2', () => {
+        let tree = new MerkleTree([Field(0), Field(1)], options);
+        expect(
+          tree
+            .getMerkleRoot()!
+            .equals(Poseidon.hash([Field(0), Field(1)]))
+            .toBoolean()
+        );
+      });
+      it('n = 4', () => {
+        let tree = new MerkleTree(
+          [Field(0), Field(1), Field(2), Field(3)],
+          options
+        );
+        expect(
+          tree
+            .getMerkleRoot()!
+            .equals(
+              Poseidon.hash([
+                Poseidon.hash([Field(0), Field(1)]),
+                Poseidon.hash([Field(2), Field(3)]),
+              ])
+            )
+            .toBoolean()
+        );
+      });
     });
 
-    let actualMerkleRoot = merkleTree.getMerkleRoot();
+    describe('odd', () => {
+      it('n = 1', () => {
+        let tree = new MerkleTree([Field(0)], options);
+        expect(
+          tree
+            .getMerkleRoot()!
+            .equals(Poseidon.hash([Field(0)]))
+            .toBoolean()
+        );
+      });
+      it('n = 3', () => {
+        let tree = new MerkleTree([Field(0), Field(1), Field(2)], options);
+        expect(
+          tree
+            .getMerkleRoot()!
+            .equals(
+              Poseidon.hash([
+                Poseidon.hash([Field(0), Field(1)]),
+                Poseidon.hash([Field(3)]),
+              ])
+            )
+            .toBoolean()
+        );
+      });
+    });
+  });
 
-    expect(actualMerkleRoot?.equals(expectedMerkleRoot).toBoolean());
-
-    nodeData.forEach((el, index) => {
-      expect(
-        MerkleTree.validateProof(
-          merkleTree.getProof(index),
-          Poseidon.hash([el]),
-          actualMerkleRoot === undefined ? Field(0) : actualMerkleRoot
-        )
+  describe('should produce and verify proofs correctly', () => {
+    it('produce and verify proof', () => {
+      let tree = new MerkleTree(
+        [Field(0), Field(1), Field(3), Field(4)],
+        options
       );
-      merkleTree.printProof(index);
+      let proof = tree.getProof(0);
+      expect(proof.length === 2);
+      MerkleTree.validateProof(
+        proof,
+        Poseidon.hash([Field(0)]),
+        tree.getMerkleRoot()!
+      );
     });
   });
 });

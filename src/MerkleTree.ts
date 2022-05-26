@@ -84,15 +84,14 @@ class MerkleTree {
   ): boolean {
     let proofHash: Field = leafHash;
 
-    // going from top to bot
     for (let x = 0; x < merklePath.length; x++) {
       proofHash = Circuit.if(
-        merklePath[x].direction.equals(Field(0)),
+        merklePath[x].direction.equals(Field(1)),
         Poseidon.hash([merklePath[x].hash, proofHash]),
         proofHash
       );
       proofHash = Circuit.if(
-        merklePath[x].direction.equals(Field(1)),
+        merklePath[x].direction.equals(Field(0)),
         Poseidon.hash([proofHash, merklePath[x].hash]),
         proofHash
       );

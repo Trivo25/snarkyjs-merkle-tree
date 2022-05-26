@@ -16,5 +16,12 @@ const example = async () => {
 
   tree.printProof(0);
   tree.printTree();
+
+  let isValid = MerkleTree.validateProof(
+    tree.getProof(0),
+    Poseidon.hash([rawData[0]]),
+    tree.getMerkleRoot()!
+  );
+  console.log('proof valid?', isValid);
 };
 example();
