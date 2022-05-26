@@ -1,16 +1,4 @@
-/* eslint-disable no-unused-vars */
-// ! TODO remove eslint above
-import {
-  Field,
-  SmartContract,
-  state,
-  State,
-  method,
-  UInt64,
-  Circuit,
-  CircuitValue,
-  Poseidon,
-} from 'snarkyjs';
+import { Field, Circuit, Poseidon } from 'snarkyjs';
 
 export { MerkleTree };
 export type { MerklePath, Options };

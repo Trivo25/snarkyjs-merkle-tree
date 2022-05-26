@@ -1,6 +1,6 @@
 import { isReady, shutdown, Field, Poseidon } from 'snarkyjs';
 
-import { MerklePath, MerkleTree, Options } from './MerkleTree';
+import { MerkleTree, Options } from './MerkleTree';
 
 describe('MerkleTree', () => {
   let options: Options = {
@@ -74,17 +74,19 @@ describe('MerkleTree', () => {
 
   describe('should produce and verify proofs correctly', () => {
     it('produce and verify proof', () => {
-      let tree = new MerkleTree(
-        [Field(0), Field(1), Field(3), Field(4)],
-        options
-      );
-      let proof = tree.getProof(0);
-      expect(proof.length === 2);
-      MerkleTree.validateProof(
-        proof,
-        Poseidon.hash([Field(0)]),
-        tree.getMerkleRoot()!
-      );
+      let rawData = [Field(0), Field(1), Field(3), Field(4)];
+      let tree = new MerkleTree(rawData, options);
+      rawData.forEach((_, i) => {
+        let proof = tree.getProof(i);
+        expect(proof.length === 2);
+        expect(
+          MerkleTree.validateProof(
+            proof,
+            Poseidon.hash([rawData[i]]),
+            tree.getMerkleRoot()!
+          )
+        ).toEqual(true);
+      });
     });
   });
 });
