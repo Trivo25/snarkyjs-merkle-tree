@@ -1,4 +1,4 @@
-# Merkle Tree implementation for SnarkyJS
+# (very basic) Merkle Tree implementation for SnarkyJS
 
 ## Description
 
