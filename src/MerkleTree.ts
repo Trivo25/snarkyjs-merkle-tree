@@ -8,8 +8,8 @@ export type { MerklePath, Options };
  * It stores the trees leaves and the nodes, which are stored in a matrix.
  */
 interface BinaryTree {
-  leaves: Field[];
-  levels: Field[][];
+  leaves: Array<Field>;
+  levels: Array<Array<Field>>;
 }
 
 /**
@@ -18,11 +18,10 @@ interface BinaryTree {
  * hash: Field - Hash of the node
  * With a list of MerklePathElements you can recreate the merkle root for a specific leaf
  */
-type MerklePath = {
+type MerklePath = Array<{
   direction: Field;
   hash: Field;
-}[];
-
+}>;
 /**
  * Option interface for a Merkle Tree
  */
@@ -40,11 +39,11 @@ class MerkleTree {
 
   /**
    * Builds a merkle tree based on a list of given leaves
-   * @param {Field[]} leaves leaves filled with data
+   * @param {Array<Field>} leaves leaves filled with data
    * @param {Options} options that can define the structure of the merkle tree
    * @return returns a {@link MerkleTree}
    */
-  constructor(leaves: Field[], options: Options) {
+  constructor(leaves: Array<Field>, options: Options) {
     this.tree = {
       leaves: [],
       levels: [],
@@ -154,10 +153,10 @@ class MerkleTree {
 
   /**
    * Appends new leaves of data to an existing Merkle Tree
-   * @param {Field[]} leaves leaves filled with data
+   * @param {Array<Field>} leaves leaves filled with data
    * @param {boolean} hash if true elements in the array will be hased using Poseidon, if false they will be inserted directly
    */
-  appendLeaves(leaves: Field[], hash: boolean = true) {
+  appendLeaves(leaves: Array<Field>, hash: boolean = true) {
     leaves.forEach((value: Field) => {
       this.tree.leaves.push(hash ? Poseidon.hash([value]) : value);
     });
@@ -181,11 +180,11 @@ class MerkleTree {
 
   /**
    * Calculates new levels of the merkle tree structure, helper function
-   * @returns {Field[]} Level of the merkle tree
+   * @returns {Array<Field>} Level of the merkle tree
    */
-  private calculateNextLevel(): Field[] {
-    let nodes: Field[] = [];
-    let topLevel: Field[] = this.tree.levels[0];
+  private calculateNextLevel(): Array<Field> {
+    let nodes: Array<Field> = [];
+    let topLevel: Array<Field> = this.tree.levels[0];
     let topLevelCount: number = topLevel.length;
     for (let x = 0; x < topLevelCount; x += 2) {
       if (x + 1 <= topLevelCount - 1) {
