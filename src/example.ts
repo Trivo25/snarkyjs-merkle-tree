@@ -1,4 +1,4 @@
-import { Field, isReady, Poseidon, shutdown } from 'snarkyjs';
+import { Field, isReady, Poseidon } from 'snarkyjs';
 import { MerkleTree, Options } from './MerkleTree.js';
 
 const example = async () => {
