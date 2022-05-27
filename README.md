@@ -61,6 +61,8 @@ const example = async () => {
 example();
 ```
 
-## Disclaimer
+## Disclaimer and Notes
+
+Using a `MerkleProof` _within_ a zkApp might not work currently, because dynamic-size arrays aren't supported yet. To fix that, you would have to define a static-sized array with a pre-defined size and pad the rest of the Merkle Proof in order to use it within zkApps. I plan on adding sized-trees to make that work without having to pad the proof array.
 
 _Do not_ use for anything important, the implementation hasn't been audited.
