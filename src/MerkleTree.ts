@@ -1,11 +1,11 @@
-import { Field, Circuit, Poseidon } from 'snarkyjs';
+import { Field, Circuit, Poseidon, Bool } from 'snarkyjs';
 
 export { MerkleTree };
 export type { MerklePath, Options };
 
 /**
  * A {@link BinaryTree} represents the underlying data structure used in Merkle Trees.
- * It stores the trees leaves and the nodes, which are stored in a matrix.
+ * It stores the trees leaves and the inner nodes, which are stored in a matrix format.
  */
 interface BinaryTree {
   leaves: Array<Field>;
@@ -13,10 +13,8 @@ interface BinaryTree {
 }
 
 /**
- * A {@link MerklePath} has the following structure:
- * direction: Field - Direction of the node, Field(0) for left, Field(1) for right
- * hash: Field - Hash of the node
- * With a list of MerklePathElements you can recreate the merkle root for a specific leaf
+ * A {@link MerklePath} ([or Witness, Merkle Proof , ..](https://computersciencewiki.org/index.php/Merkle_proof)) serves as a 'proof of inclusion'.
+ * The data structure contains the path from a given leaf to the root of the Merkle Tree.
  */
 type MerklePath = Array<{
   direction: Field;
@@ -38,10 +36,10 @@ class MerkleTree {
   private options: Options;
 
   /**
-   * Builds a merkle tree based on a list of given leaves
-   * @param {Array<Field>} leaves leaves filled with data
+   * Builds a Merkle Tree based on a list of given leaves.
+   * @param {Array<Field>} leaves leaf nodes
    * @param {Options} options that can define the structure of the merkle tree
-   * @return returns a {@link MerkleTree}
+   * @return {@link MerkleTree}
    */
   constructor(leaves: Array<Field>, options: Options) {
     this.tree = {
@@ -53,11 +51,11 @@ class MerkleTree {
   }
 
   /**
-   * Static function to validate a merkle path
-   * @param {MerklePath} merklePath Merkle path leading to the root of the tree
-   * @param {Field} leafHash Hash of element that needs verification
-   * @param {Field} merkleRoot Root of the merkle tree
-   * @returns {boolean} true when the merkle path matches the merkle root
+   * Static function to validate a Merkle Path - Can be used within a zkApp/Circuit.
+   * @param {MerklePath} merklePath path leading to the root of the tree
+   * @param {Field} leafHash hash of element that needs verification
+   * @param {Field} merkleRoot (target) root of the Merkle Tree
+   * @returns {boolean}
    */
   static validateProof(
     merklePath: MerklePath,
@@ -83,8 +81,8 @@ class MerkleTree {
   }
 
   /**
-   * Returns the merkle proof
-   * @returns {Field | undefined} Merkle root, if not undefined
+   * Returns the Merkle Root
+   * @returns {Field | undefined}
    */
   getMerkleRoot(): Field | undefined {
     if (this.tree.levels.length === 0) {
@@ -152,11 +150,11 @@ class MerkleTree {
   }
 
   /**
-   * Appends new leaves of data to an existing Merkle Tree
-   * @param {Array<Field>} leaves leaves filled with data
+   * Appends new leaves to an existing Merkle Tree
+   * @param {Array<Field>} leaves
    * @param {boolean} hash if true elements in the array will be hased using Poseidon, if false they will be inserted directly
    */
-  appendLeaves(leaves: Array<Field>, hash: boolean = true) {
+  appendLeaves(leaves: Array<Field>, hash: boolean = true): void {
     leaves.forEach((value: Field) => {
       this.tree.leaves.push(hash ? Poseidon.hash([value]) : value);
     });
@@ -167,7 +165,7 @@ class MerkleTree {
   /**
    * (Re)builds the {@link MerkleTree}'s levels based on pre-initialized leaves
    */
-  makeTree() {
+  private makeTree(): void {
     let leafCount: number = this.tree.leaves.length;
     if (leafCount > 0) {
       this.tree.levels = [];
@@ -179,8 +177,8 @@ class MerkleTree {
   }
 
   /**
-   * Calculates new levels of the merkle tree structure, helper function
-   * @returns {Array<Field>} Level of the merkle tree
+   * Calculates new levels of the Merkle Tree structure, helper function
+   * @returns {Array<Field>} Level of the Merkle Tree
    */
   private calculateNextLevel(): Array<Field> {
     let nodes: Array<Field> = [];
@@ -191,18 +189,11 @@ class MerkleTree {
         // concatenate and hash the pair, add to the next level array, doubleHash if requested
         nodes.push(Poseidon.hash([topLevel[x], topLevel[x + 1]]));
       } else {
-        // this is an odd ending node, promote up to the next level by itself
+        // this is an odd ending node, bubble it up to the next level
         nodes.push(topLevel[x]);
       }
     }
     return nodes;
-  }
-
-  private clear() {
-    this.tree = {
-      leaves: [],
-      levels: [],
-    };
   }
 
   printTree(): void {
