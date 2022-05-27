@@ -1,5 +1,9 @@
 # Merkle Tree implementation for SnarkyJS
 
+## Description
+
+<img style="margin-left: 10%; margin-right: 10%; width: auto;" src="./src/visu.svg" alt="Merkle Tree and Path" />
+
 ## Usage
 
 ```ts
