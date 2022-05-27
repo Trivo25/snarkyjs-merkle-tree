@@ -1,6 +1,6 @@
 {
   "name": "snarkyjs-merkle-tree",
-  "version": "0.1",
+  "version": "0.1.0",
   "description": "",
   "author": "",
   "license": "Apache-2.0",
@@ -16,6 +16,7 @@
   "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
+  "prepublish": "tsc -p tsconfig.json",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "coverage": "node --experimental-vm-modules --experimental-wasm-modules --experimental-wasm-threads node_modules/.bin/jest --coverage",

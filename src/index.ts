@@ -1,4 +1,4 @@
-import { MerkleTree, MerklePath } from './MerkleTree';
+import { MerkleTree, MerklePath, Options } from './MerkleTree.js';
 
 export { MerkleTree };
-export type { MerklePath };
+export type { MerklePath, Options };

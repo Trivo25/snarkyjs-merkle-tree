@@ -1,5 +1,7 @@
 # TypeScript files
 src
+#
+build
 
 # Editor
 .vscode

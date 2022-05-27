@@ -1,4 +1,4 @@
-import { Field, isReady, Poseidon } from 'snarkyjs';
+import { Field, isReady, Poseidon, shutdown } from 'snarkyjs';
 import { MerkleTree, Options } from './MerkleTree.js';
 
 const example = async () => {
@@ -23,5 +23,6 @@ const example = async () => {
     tree.getMerkleRoot()!
   );
   console.log('proof valid?', isValid);
+  shutdown();
 };
 example();
