@@ -65,16 +65,21 @@ class MerkleTree {
     let proofHash: Field = leafHash;
 
     for (let x = 0; x < merklePath.length; x++) {
+      // allows for static-sized padded arrays
+      // is left node
       proofHash = Circuit.if(
         merklePath[x].direction.equals(Field(1)),
         Poseidon.hash([merklePath[x].hash, proofHash]),
         proofHash
       );
+      // is left node
       proofHash = Circuit.if(
         merklePath[x].direction.equals(Field(0)),
         Poseidon.hash([proofHash, merklePath[x].hash]),
         proofHash
       );
+
+      // is padded element, direction = Field(2), just continue
     }
 
     return proofHash.equals(merkleRoot).toBoolean();
