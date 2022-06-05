@@ -189,17 +189,15 @@ class MerkleTree {
     let childNodes: Array<Field> = [];
 
     // check what child nodes need to be ordered
-    if (currentLevelIndex % 2 === 0) {
-      childNodes[0] =
-        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex];
-      childNodes[1] =
-        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex + 1];
-    } else if (currentLevelIndex % 2 !== 0) {
-      childNodes[0] =
-        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex - 1];
-      childNodes[1] =
-        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex];
-    }
+    let isEvenNode = currentLevelIndex % 2 === 0;
+    childNodes[0] =
+      this.tree.levels[this.tree.levels.length - 1][
+        currentLevelIndex + (isEvenNode ? 0 : -1)
+      ];
+    childNodes[1] =
+      this.tree.levels[this.tree.levels.length - 1][
+        currentLevelIndex + (isEvenNode ? 1 : 0)
+      ];
 
     this.tree.levels.reverse().forEach((level, height) => {
       let nextLevelIndex =
