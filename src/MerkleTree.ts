@@ -215,13 +215,9 @@ class MerkleTree {
       level[currentLevelIndex] = Poseidon.hash([childNodes[0], childNodes[1]]);
 
       // set the child nodes for the next level
-      if (currentLevelIndex % 2 === 0) {
-        childNodes[0] = level[currentLevelIndex];
-        childNodes[1] = level[currentLevelIndex + 1];
-      } else {
-        childNodes[0] = level[currentLevelIndex - 1];
-        childNodes[1] = level[currentLevelIndex];
-      }
+      isEvenNode = currentLevelIndex % 2 === 0;
+      childNodes[0] = level[currentLevelIndex + (isEvenNode ? 0 : -1)];
+      childNodes[1] = level[currentLevelIndex + (isEvenNode ? 1 : 0)];
 
       currentLevelIndex = nextLevelIndex;
     });
