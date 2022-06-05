@@ -32,7 +32,7 @@ interface Options {
  *
  */
 class MerkleTree {
-  private tree: BinaryTree;
+  tree: BinaryTree;
   private options: Options;
 
   /**
@@ -168,9 +168,66 @@ class MerkleTree {
   }
 
   /**
+   * Updates a leaf at a given index; Updating the merkle tree this way allows us to only hash log2(n) where n is the amount of leaf nodes, which is drastically faster than re-computing the entire tree with 2n-1 hashes
+   * @param {Field} new leaf
+   * @param {number} index
+   * @param {boolean} hash if true elements in the array will be hased using Poseidon, if false they will be inserted directly
+   */
+  update(newLeaf: Field, index: number, hash: boolean = true): void {
+    // updates the leaf in the leaf array
+    let digest: Field = hash ? Poseidon.hash([newLeaf]) : newLeaf;
+    this.tree.leaves[index] = digest;
+    this.tree.levels[this.tree.levels.length - 1][index] = digest;
+
+    let currentLevelIndex: number = index;
+    let childNodes: Array<Field> = [];
+
+    // check what child nodes need to be ordered
+    if (currentLevelIndex % 2 === 0) {
+      childNodes[0] =
+        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex];
+      childNodes[1] =
+        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex + 1];
+    } else if (currentLevelIndex % 2 !== 0) {
+      childNodes[0] =
+        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex - 1];
+      childNodes[1] =
+        this.tree.levels[this.tree.levels.length - 1][currentLevelIndex];
+    }
+
+    this.tree.levels.reverse().forEach((level, height) => {
+      let nextLevelIndex =
+        currentLevelIndex % 2 == 0
+          ? currentLevelIndex / 2
+          : (currentLevelIndex - 1) / 2;
+
+      // skips if we are on the leaf level
+      if (height === 0) {
+        currentLevelIndex = nextLevelIndex;
+        return;
+      }
+
+      // set the hash for the current node
+      level[currentLevelIndex] = Poseidon.hash([childNodes[0], childNodes[1]]);
+
+      // set the child nodes for the next level
+      if (currentLevelIndex % 2 === 0) {
+        childNodes[0] = level[currentLevelIndex];
+        childNodes[1] = level[currentLevelIndex + 1];
+      } else {
+        childNodes[0] = level[currentLevelIndex - 1];
+        childNodes[1] = level[currentLevelIndex];
+      }
+
+      currentLevelIndex = nextLevelIndex;
+    });
+    this.tree.levels.reverse();
+  }
+
+  /**
    * (Re)builds the {@link MerkleTree}'s levels based on pre-initialized leaves
    */
-  private makeTree(): void {
+  makeTree(): void {
     let leafCount: number = this.tree.leaves.length;
     if (leafCount > 0) {
       this.tree.levels = [];

@@ -7,22 +7,38 @@ const example = async () => {
   let options: Options = {
     hashLeaves: true,
   };
+  console.time('a');
+  let rawData = [
+    Field(0),
+    Field(0),
+    Field(0),
+    Field(5),
+    Field(0),
+    Field(0),
+    Field(0),
+    Field(0),
+  ];
 
-  let rawData: Field[] = [Field(0), Field(1), Field(2), Field(3)];
+  let tree1 = new MerkleTree(rawData, options);
 
-  let tree = new MerkleTree(rawData, options);
+  let rawData2 = [
+    Field(0),
+    Field(0),
+    Field(0),
+    Field(0),
+    Field(0),
+    Field(0),
+    Field(0),
+    Field(0),
+  ];
 
-  console.log('root: ' + tree.getMerkleRoot()?.toString());
+  let tree2 = new MerkleTree(rawData2, options);
 
-  tree.printProof(0);
-  tree.printTree();
+  tree2.update(Field(5), 3);
 
-  let isValid = MerkleTree.validateProof(
-    tree.getProof(0),
-    Poseidon.hash([rawData[0]]),
-    tree.getMerkleRoot()!
+  console.log(
+    tree1.getMerkleRoot()?.toString() === tree2.getMerkleRoot()?.toString()
   );
-  console.log('proof valid?', isValid);
   shutdown();
 };
 example();
