@@ -32,7 +32,7 @@ interface Options {
  *
  */
 class MerkleTree {
-  tree: BinaryTree;
+  private tree: BinaryTree;
   private options: Options;
 
   /**
@@ -42,6 +42,9 @@ class MerkleTree {
    * @return {@link MerkleTree}
    */
   constructor(leaves: Array<Field>, options: Options) {
+    if (!this.isPow2(leaves.length)) {
+      throw 'Please make sure that the amount of leaves inside the Merkle Tree is a power of two - 2^n';
+    }
     this.tree = {
       leaves: [],
       levels: [],
@@ -160,6 +163,9 @@ class MerkleTree {
    * @param {boolean} hash if true elements in the array will be hased using Poseidon, if false they will be inserted directly
    */
   appendLeaves(leaves: Array<Field>, hash: boolean = true): void {
+    if (!this.isPow2(leaves.length)) {
+      throw 'Please make sure that the amount of leaves inside the Merkle Tree is a power of two - 2^n';
+    }
     leaves.forEach((value: Field) => {
       this.tree.leaves.push(hash ? Poseidon.hash([value]) : value);
     });
@@ -256,6 +262,10 @@ class MerkleTree {
       }
     }
     return nodes;
+  }
+
+  private isPow2(x: number) {
+    return (x & (x - 1)) === 0;
   }
 
   printTree(): void {
